@@ -171,11 +171,11 @@ const Hero = () => {
           MOBILE — stacked layout (below md)
           ══════════════════════════════════════ */}
       <div className="hero-mobile md:hidden flex flex-col items-center justify-center h-full px-6 relative z-10 opacity-0">
-        {/* animated gradient blob */}
+        {/* radial glow */}
         <div
-          className="absolute inset-0 z-0 pointer-events-none animate-pulse-slow"
+          className="absolute inset-0 z-0 pointer-events-none"
           style={{
-            background: `radial-gradient(ellipse 80% 60% at 50% 50%,
+            background: `radial-gradient(ellipse 80% 60% at 50% 45%,
               rgba(96,32,192,0.2) 0%,
               rgba(100,200,255,0.06) 40%,
               transparent 70%)`,
@@ -190,7 +190,10 @@ const Hero = () => {
             RAYAPUREDDY
           </h1>
 
-          <div className="w-16 h-px bg-accent-blue mx-auto my-5" />
+          {/* Spline on mobile */}
+          <div className="w-[260px] h-[220px] mx-auto my-4 relative">
+            <HeroVisual />
+          </div>
 
           <p className="font-mono text-accent-teal text-sm mb-1">A Blockchain</p>
           <h2 className="font-mono font-bold text-white text-3xl">DEVELOPER</h2>

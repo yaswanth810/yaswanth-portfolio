@@ -3,7 +3,7 @@ import { Suspense } from 'react';
 
 function SplineScene() {
   return (
-    <Spline scene="https://prod.spline.design/IBPyK3TvwSJ-z8-N/scene.splinecode" />
+    <Spline scene="https://prod.spline.design/jC0soc8RiMJinpJD/scene.splinecode" />
   );
 }
 
@@ -16,7 +16,12 @@ export default function HeroVisual() {
         </div>
       }
     >
-      <SplineScene />
+      {/* Clip the bottom 40px to hide "Built with Spline" watermark */}
+      <div className="relative w-full h-full overflow-hidden">
+        <div className="absolute inset-0" style={{ bottom: '-60px' }}>
+          <SplineScene />
+        </div>
+      </div>
     </Suspense>
   );
 }

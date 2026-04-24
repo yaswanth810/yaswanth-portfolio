@@ -3,7 +3,6 @@ import { Toaster } from 'react-hot-toast';
 import Navbar from './components/Navbar';
 import BackToTop from './components/BackToTop';
 import Footer from './components/Footer';
-import CustomCursor from './components/CustomCursor';
 import PageLoader from './components/PageLoader';
 import Hero from './sections/Hero';
 import About from './sections/About';
@@ -18,7 +17,6 @@ function App() {
     <>
       {!loaded && <PageLoader onComplete={() => setLoaded(true)} />}
       <Toaster position="bottom-right" />
-      <CustomCursor />
       <div style={{ visibility: loaded ? 'visible' : 'hidden' }}>
         <Navbar />
         {/* animated grid overlay */}
