@@ -1,92 +1,80 @@
 import { useEffect, useRef } from 'react';
 
-const CustomCursor = () => {
-  const dotRef = useRef<HTMLDivElement>(null!);
-  const ringRef = useRef<HTMLDivElement>(null!);
-  const mouse = useRef({ x: 0, y: 0 });
-  const dotPos = useRef({ x: 0, y: 0 });
-  const ringPos = useRef({ x: 0, y: 0 });
-  const hovering = useRef(false);
+export default function CustomCursor() {
+  const dotRef = useRef<HTMLDivElement>(null);
+  const ringRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Hide on touch devices
+    // Skip on touch devices
     if ('ontouchstart' in window) return;
 
-    const onMove = (e: MouseEvent) => {
-      mouse.current.x = e.clientX;
-      mouse.current.y = e.clientY;
+    let dotX = 0, dotY = 0;
+    let ringX = 0, ringY = 0;
+    let mouseX = 0, mouseY = 0;
+    let isHovering = false;
+
+    const onMouseMove = (e: MouseEvent) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+
+      // Check if hovering over interactive element
+      const target = e.target as HTMLElement;
+      isHovering = !!(target.closest('a, button, [role="button"]'));
     };
 
-    const onEnterInteractive = () => { hovering.current = true; };
-    const onLeaveInteractive = () => { hovering.current = false; };
+    window.addEventListener('mousemove', onMouseMove);
 
-    window.addEventListener('mousemove', onMove);
-
-    // Observe interactive elements
-    const attachListeners = () => {
-      const interactives = document.querySelectorAll('a, button, [role="button"]');
-      interactives.forEach((el) => {
-        el.addEventListener('mouseenter', onEnterInteractive);
-        el.addEventListener('mouseleave', onLeaveInteractive);
-      });
-    };
-
-    attachListeners();
-    const observer = new MutationObserver(attachListeners);
-    observer.observe(document.body, { childList: true, subtree: true });
-
-    // Animation loop
     let raf: number;
     const animate = () => {
-      // Lerp dot (fast)
-      dotPos.current.x += (mouse.current.x - dotPos.current.x) * 0.1;
-      dotPos.current.y += (mouse.current.y - dotPos.current.y) * 0.1;
+      // Dot follows fast (lerp 0.15)
+      dotX += (mouseX - dotX) * 0.15;
+      dotY += (mouseY - dotY) * 0.15;
 
-      // Lerp ring (slow)
-      ringPos.current.x += (mouse.current.x - ringPos.current.x) * 0.05;
-      ringPos.current.y += (mouse.current.y - ringPos.current.y) * 0.05;
+      // Ring follows slower (lerp 0.06)
+      ringX += (mouseX - ringX) * 0.06;
+      ringY += (mouseY - ringY) * 0.06;
 
       if (dotRef.current) {
-        dotRef.current.style.transform = `translate(${dotPos.current.x - 4}px, ${dotPos.current.y - 4}px)`;
+        dotRef.current.style.transform =
+          `translate(${dotX - 4}px, ${dotY - 4}px)`;
       }
 
       if (ringRef.current) {
-        const scale = hovering.current ? 2 : 1;
-        const borderColor = hovering.current ? '#64C8FF' : 'rgba(100,200,255,0.4)';
-        ringRef.current.style.transform = `translate(${ringPos.current.x - 12}px, ${ringPos.current.y - 12}px) scale(${scale})`;
-        ringRef.current.style.borderColor = borderColor;
+        const scale = isHovering ? 2.5 : 1;
+        ringRef.current.style.transform =
+          `translate(${ringX - 16}px, ${ringY - 16}px) scale(${scale})`;
+        ringRef.current.style.borderColor =
+          isHovering ? '#64C8FF' : 'rgba(100,200,255,0.5)';
       }
 
       raf = requestAnimationFrame(animate);
     };
+
     raf = requestAnimationFrame(animate);
 
     return () => {
-      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mousemove', onMouseMove);
       cancelAnimationFrame(raf);
-      observer.disconnect();
     };
   }, []);
 
-  // Don't render on touch
-  if (typeof window !== 'undefined' && 'ontouchstart' in window) return null;
-
   return (
-    <>
+    <div className="hidden md:block">
       {/* dot */}
       <div
         ref={dotRef}
-        className="fixed top-0 left-0 w-2 h-2 rounded-full bg-accent-teal pointer-events-none z-[9999] mix-blend-difference"
+        className="fixed top-0 left-0 w-2 h-2 bg-accent-teal rounded-full
+                   pointer-events-none z-[9999] mix-blend-difference"
         style={{ willChange: 'transform' }}
       />
       {/* ring */}
       <div
         ref={ringRef}
-        className="fixed top-0 left-0 w-6 h-6 rounded-full border border-accent-teal/40 pointer-events-none z-[9999] transition-[border-color] duration-200"
+        className="fixed top-0 left-0 w-8 h-8 border border-accent-teal/50
+                   rounded-full pointer-events-none z-[9998]
+                   transition-transform duration-200"
         style={{ willChange: 'transform' }}
       />
-    </>
+    </div>
   );
-};
-
-export default CustomCursor;
+}

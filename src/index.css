@@ -28,13 +28,13 @@ body {
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   overflow-x: hidden;
-  cursor: none;
 }
 
-/* restore cursor on touch devices */
-@media (hover: none) {
-  body { cursor: auto; }
+/* Hide default cursor on desktop */
+@media (min-width: 768px) and (hover: hover) {
+  * { cursor: none !important; }
 }
+
 
 code, pre, .font-mono {
   font-family: 'Geist Mono', 'GeistMono', ui-monospace, Consolas, monospace;
@@ -135,5 +135,15 @@ a:hover {
     repeating-linear-gradient(0deg, rgba(30,50,100,0.15) 0px, rgba(30,50,100,0.15) 1px, transparent 1px, transparent 60px),
     repeating-linear-gradient(90deg, rgba(30,50,100,0.15) 0px, rgba(30,50,100,0.15) 1px, transparent 1px, transparent 60px);
   animation: grid-drift 20s linear infinite;
+}
+
+/* ── Mobile hero gradient pulse ── */
+@keyframes pulse-slow {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 4s ease-in-out infinite;
 }
 

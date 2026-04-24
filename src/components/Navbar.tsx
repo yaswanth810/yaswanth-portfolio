@@ -138,6 +138,15 @@ const Navbar = () => {
                   </button>
                 </li>
               ))}
+              <li>
+                <a
+                  href="/Yaswanth_Resume.pdf"
+                  download="Yaswanth_Rayapureddy_Resume.pdf"
+                  className="font-mono text-sm text-text-muted hover:text-accent-teal transition-colors flex items-center gap-1"
+                >
+                  <span className="text-xs">↓</span> Resume
+                </a>
+              </li>
             </ul>
             {/* sliding underline */}
             <div
@@ -192,6 +201,16 @@ const Navbar = () => {
                 </button>
               </li>
             ))}
+            <li>
+              <a
+                href="/Yaswanth_Resume.pdf"
+                download="Yaswanth_Rayapureddy_Resume.pdf"
+                className="font-mono text-sm text-text-muted hover:text-accent-teal transition-colors flex items-center gap-1"
+                onClick={() => setMenuOpen(false)}
+              >
+                <span className="text-xs">↓</span> Resume
+              </a>
+            </li>
           </ul>
         </div>
       </nav>

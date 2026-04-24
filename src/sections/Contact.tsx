@@ -2,9 +2,9 @@ import { useRef, useEffect, useState, useCallback, type FormEvent } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import emailjs from '@emailjs/browser';
+import toast from 'react-hot-toast';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import Toast from '../components/Toast';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -63,10 +63,9 @@ const CONTACT_DETAILS = [
 
 const Contact = () => {
   const sectionRef = useRef<HTMLElement>(null!);
-  const formRef = useRef<HTMLFormElement>(null!);
 
   const [sending, setSending] = useState(false);
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
 
   /* ── GSAP scroll animation ── */
   useEffect(() => {
@@ -96,21 +95,41 @@ const Contact = () => {
     setSending(true);
 
     try {
-      await emailjs.sendForm(
+      await emailjs.send(
         EMAILJS_SERVICE_ID,
         EMAILJS_TEMPLATE_ID,
-        formRef.current,
+        {
+          from_name: formData.name,
+          from_email: formData.email,
+          message: formData.message,
+          to_name: 'Yaswanth',
+        },
         EMAILJS_PUBLIC_KEY,
       );
-      setToast({ message: '✓ Message sent. I\'ll respond within 24 hours.', type: 'success' });
-      formRef.current.reset();
-    } catch (err) {
-      console.error(err);
-      setToast({ message: 'Something went wrong. Email me directly.', type: 'error' });
+      toast.success("Message sent! I'll respond within 24 hours.", {
+        style: {
+          background: '#0C1020',
+          color: '#64C8FF',
+          border: '1px solid #1A2A5A',
+          fontFamily: 'monospace',
+          fontSize: '13px',
+        },
+        duration: 5000,
+      });
+      setFormData({ name: '', email: '', message: '' });
+    } catch {
+      toast.error('Something went wrong. Email me directly.', {
+        style: {
+          background: '#0C1020',
+          color: '#FF6464',
+          border: '1px solid #3A1A1A',
+          fontFamily: 'monospace',
+        },
+      });
     } finally {
       setSending(false);
     }
-  }, []);
+  }, [formData]);
 
   return (
     <section
@@ -208,7 +227,6 @@ const Contact = () => {
 
           {/* form */}
           <form
-            ref={formRef}
             onSubmit={handleSubmit}
             className="relative z-10 bg-[#0C1020]/80 backdrop-blur-md border border-[#1A2A5A] rounded-2xl p-8 space-y-5"
           >
@@ -218,10 +236,11 @@ const Contact = () => {
               </label>
               <input
                 id="contact-name"
-                name="user_name"
                 type="text"
                 required
                 placeholder="Your name"
+                value={formData.name}
+                onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))}
                 className="w-full bg-[#0C1020] border border-[#1A2A5A] focus:border-accent-teal
                            rounded-lg p-3 font-mono text-sm text-text-primary
                            outline-none transition-colors placeholder:text-text-muted/40"
@@ -234,10 +253,11 @@ const Contact = () => {
               </label>
               <input
                 id="contact-email"
-                name="user_email"
                 type="email"
                 required
                 placeholder="you@example.com"
+                value={formData.email}
+                onChange={(e) => setFormData((p) => ({ ...p, email: e.target.value }))}
                 className="w-full bg-[#0C1020] border border-[#1A2A5A] focus:border-accent-teal
                            rounded-lg p-3 font-mono text-sm text-text-primary
                            outline-none transition-colors placeholder:text-text-muted/40"
@@ -250,10 +270,11 @@ const Contact = () => {
               </label>
               <textarea
                 id="contact-message"
-                name="message"
                 required
                 rows={5}
                 placeholder="What would you like to build?"
+                value={formData.message}
+                onChange={(e) => setFormData((p) => ({ ...p, message: e.target.value }))}
                 className="w-full bg-[#0C1020] border border-[#1A2A5A] focus:border-accent-teal
                            rounded-lg p-3 font-mono text-sm text-text-primary resize-none
                            outline-none transition-colors placeholder:text-text-muted/40"
@@ -264,25 +285,31 @@ const Contact = () => {
             <button
               type="submit"
               disabled={sending}
-              className="w-full bg-accent-teal hover:bg-accent-teal/80 disabled:opacity-50
-                         text-bg-dark font-semibold text-sm py-3 rounded-full transition-colors"
+              className="w-full py-3 rounded-lg font-mono text-sm font-medium
+                         bg-accent-teal text-bg-dark hover:bg-accent-teal/90
+                         disabled:opacity-50 disabled:cursor-not-allowed
+                         transition-all duration-300"
             >
-              {sending ? 'Sending…' : 'Send Message →'}
+              {sending ? 'Sending...' : 'Send Message →'}
             </button>
+
+            {/* resume download */}
+            <a
+              href="/Yaswanth_Resume.pdf"
+              download="Yaswanth_Rayapureddy_Resume.pdf"
+              className="w-full flex items-center justify-center gap-3
+                         border border-accent-teal text-accent-teal font-mono text-sm
+                         py-3 rounded-lg hover:bg-accent-teal hover:text-bg-dark
+                         transition-all duration-300 mt-4"
+            >
+              ↓ Download Resume
+            </a>
           </form>
         </div>
       </div>
-
-      {/* toast notification */}
-      {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
-        />
-      )}
     </section>
   );
 };
 
 export default Contact;
+

@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { Toaster } from 'react-hot-toast';
 import Navbar from './components/Navbar';
 import BackToTop from './components/BackToTop';
 import Footer from './components/Footer';
@@ -10,22 +12,27 @@ import Achievements from './sections/Achievements';
 import Contact from './sections/Contact';
 
 function App() {
+  const [loaded, setLoaded] = useState(false);
+
   return (
     <>
-      <PageLoader />
+      {!loaded && <PageLoader onComplete={() => setLoaded(true)} />}
+      <Toaster position="bottom-right" />
       <CustomCursor />
-      <Navbar />
-      {/* animated grid overlay */}
-      <div className="fixed inset-0 z-0 pointer-events-none bg-grid-animated" />
-      <main className="relative z-[1] bg-transparent min-h-screen">
-        <Hero />
-        <About />
-        <Projects />
-        <Achievements />
-        <Contact />
-      </main>
-      <Footer />
-      <BackToTop />
+      <div style={{ visibility: loaded ? 'visible' : 'hidden' }}>
+        <Navbar />
+        {/* animated grid overlay */}
+        <div className="fixed inset-0 z-0 pointer-events-none bg-grid-animated" />
+        <main className="relative z-[1] bg-transparent min-h-screen">
+          <Hero />
+          <About />
+          <Projects />
+          <Achievements />
+          <Contact />
+        </main>
+        <Footer />
+        <BackToTop />
+      </div>
     </>
   );
 }

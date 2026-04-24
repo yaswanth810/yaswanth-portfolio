@@ -1,153 +1,63 @@
 import { useRef, useEffect } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import * as THREE from 'three';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
 /* ═══════════════════════════════════════════
-   CARD TOP VISUALS
+   PROJECT PREVIEW — Microlink screenshots
    ═══════════════════════════════════════════ */
 
-/** TrustDrop — live site iframe preview */
-function TrustDropVisual() {
+function ProjectPreview({ url, alt }: { url: string; alt: string }) {
+  const screenshotUrl = `https://api.microlink.io/?url=${encodeURIComponent(url)}&screenshot=true&meta=false&embed=screenshot.url`;
+
   return (
-    <div className="relative w-full h-[200px] overflow-hidden bg-[#0A1020] rounded-t-xl">
-      <iframe
-        src="https://trust-drop-henna.vercel.app/"
-        title="TrustDrop Preview"
-        className="absolute top-0 left-0 border-none pointer-events-none"
-        style={{
-          width: '200%',
-          height: '200%',
-          transform: 'scale(0.5)',
-          transformOrigin: 'top left',
-        }}
+    <div className="relative w-full h-44 overflow-hidden rounded-t-xl bg-[#0A1020]">
+      <img
+        src={screenshotUrl}
+        alt={alt}
+        className="w-full h-full object-cover object-top
+                   transition-transform duration-500 group-hover:scale-105"
         loading="lazy"
-        sandbox="allow-scripts allow-same-origin"
+        onError={(e) => {
+          (e.currentTarget as HTMLImageElement).style.display = 'none';
+        }}
       />
-      {/* bottom fade gradient */}
-      <div
-        className="absolute bottom-0 left-0 w-full h-20 pointer-events-none"
-        style={{ background: 'linear-gradient(to top, #0C1020 0%, transparent 100%)' }}
-      />
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#0C1020]" />
     </div>
   );
 }
 
-/** EduTrust — floating hexagons in Three.js */
-function HexagonMesh({ position, scale }: { position: [number, number, number]; scale: number }) {
-  const ref = useRef<THREE.Mesh>(null!);
-  const speed = useRef(0.3 + Math.random() * 0.4);
-
-  useFrame((_, delta) => {
-    ref.current.rotation.y += delta * speed.current;
-    ref.current.rotation.z += delta * 0.15;
-    ref.current.position.y += Math.sin(Date.now() * 0.001 + position[0]) * 0.002;
-  });
-
+/** EduTrust — branded placeholder (no live URL) */
+function EduTrustPlaceholder() {
   return (
-    <mesh ref={ref} position={position} scale={scale}>
-      <cylinderGeometry args={[0.4, 0.4, 0.08, 6]} />
-      <meshStandardMaterial
-        color="#1A3080"
-        emissive="#0A1A4A"
-        emissiveIntensity={0.3}
-        metalness={0.6}
-        roughness={0.3}
-      />
-      {/* border ring */}
-      <mesh>
-        <torusGeometry args={[0.4, 0.015, 8, 6]} />
-        <meshStandardMaterial color="#64C8FF" emissive="#64C8FF" emissiveIntensity={0.6} />
-      </mesh>
-    </mesh>
-  );
-}
-
-function EduTrustScene() {
-  const hexPositions: { pos: [number, number, number]; s: number }[] = [
-    { pos: [0, 0, 0], s: 1.2 },
-    { pos: [-1.5, 0.6, -0.5], s: 0.8 },
-    { pos: [1.4, -0.3, 0.3], s: 0.9 },
-    { pos: [-0.8, -0.8, 0.6], s: 0.7 },
-    { pos: [0.9, 0.9, -0.4], s: 0.6 },
-    { pos: [-1.8, -0.5, -0.8], s: 0.5 },
-  ];
-
-  return (
-    <>
-      <ambientLight color="#ffffff" intensity={0.5} />
-      <directionalLight color="#64C8FF" intensity={1.5} position={[3, 4, 3]} />
-      <pointLight color="#3C78DC" intensity={1} position={[-2, -1, 2]} />
-      {hexPositions.map((h, i) => (
-        <HexagonMesh key={i} position={h.pos} scale={h.s} />
-      ))}
-    </>
-  );
-}
-
-function EduTrustVisual() {
-  return (
-    <div className="relative w-full h-[200px] overflow-hidden bg-[#0A1020] rounded-t-xl">
-      <Canvas
-        camera={{ position: [0, 0, 4], fov: 45 }}
-        gl={{ antialias: true, alpha: false }}
-        style={{ background: '#0A1020' }}
-      >
-        <EduTrustScene />
-      </Canvas>
-      <div
-        className="absolute bottom-0 left-0 w-full h-12 pointer-events-none"
-        style={{ background: 'linear-gradient(to top, #0C1020 0%, transparent 100%)' }}
-      />
-    </div>
-  );
-}
-
-/** Voting — CSS animated bar chart */
-function VotingVisual() {
-  const bars = [
-    { height: 72, delay: '0s' },
-    { height: 48, delay: '0.1s' },
-    { height: 88, delay: '0.2s' },
-    { height: 56, delay: '0.3s' },
-    { height: 64, delay: '0.4s' },
-  ];
-
-  return (
-    <div className="relative w-full h-[200px] overflow-hidden bg-[#0A1020] rounded-t-xl flex flex-col items-center justify-end px-8 pb-5 pt-4">
-      <span className="absolute top-4 left-5 font-mono text-[11px] text-accent-teal tracking-widest uppercase">
-        Live Votes
-      </span>
-      <div className="flex items-end gap-3 w-full justify-center h-[140px]">
-        {bars.map((bar, i) => (
-          <div
-            key={i}
-            className="flex-1 max-w-[48px] rounded-t-md animate-bar-rise"
-            style={{
-              height: `${bar.height}%`,
-              background: `linear-gradient(to top, #3C78DC, #64C8FF)`,
-              animationDelay: bar.delay,
-              opacity: 0.85,
-            }}
-          />
-        ))}
+    <div className="w-full h-44 rounded-t-xl bg-gradient-to-br from-[#0A1530] to-[#050810]
+                    flex items-center justify-center border-b border-[#1A2A5A]">
+      <div className="text-center">
+        <div className="text-4xl font-mono font-bold text-accent-blue opacity-40">
+          EduTrust
+        </div>
+        <div className="text-xs font-mono text-text-muted mt-2">
+          ERC-721 · IPFS · Ethereum Sepolia
+        </div>
       </div>
-      <div className="flex gap-3 w-full justify-center mt-2">
-        {['A', 'B', 'C', 'D', 'E'].map((l) => (
-          <span key={l} className="flex-1 max-w-[48px] text-center font-mono text-[10px] text-text-muted">
-            {l}
-          </span>
-        ))}
-      </div>
-      <div
-        className="absolute bottom-0 left-0 w-full h-8 pointer-events-none"
-        style={{ background: 'linear-gradient(to top, #0C1020 0%, transparent 100%)' }}
-      />
     </div>
   );
+}
+
+/* ═══════════════════════════════════════════
+   VISUAL SWITCH
+   ═══════════════════════════════════════════ */
+
+function VisualSwitch({ type }: { type: ProjectData['visual'] }) {
+  switch (type) {
+    case 'trustdrop':
+      return <ProjectPreview url="https://trust-drop-henna.vercel.app/" alt="TrustDrop live preview" />;
+    case 'edutrust':
+      return <EduTrustPlaceholder />;
+    case 'voting':
+      return <ProjectPreview url="https://voting-proposal.vercel.app/" alt="Voting System live preview" />;
+  }
 }
 
 /* ═══════════════════════════════════════════
@@ -219,17 +129,6 @@ const PROJECTS: ProjectData[] = [
    PROJECT CARD
    ═══════════════════════════════════════════ */
 
-function VisualSwitch({ type }: { type: ProjectData['visual'] }) {
-  switch (type) {
-    case 'trustdrop':
-      return <TrustDropVisual />;
-    case 'edutrust':
-      return <EduTrustVisual />;
-    case 'voting':
-      return <VotingVisual />;
-  }
-}
-
 function ProjectCard({ project }: { project: ProjectData }) {
   const primaryLink = project.links.find((l) => l.label.includes('Demo')) ?? project.links[0];
 
@@ -238,9 +137,7 @@ function ProjectCard({ project }: { project: ProjectData }) {
                     transition-all duration-300
                     hover:-translate-y-2 hover:shadow-[0_20px_60px_rgba(100,200,255,0.15)] hover:border-accent-teal">
       {/* visual area */}
-      <div className="overflow-hidden transition-transform duration-300 group-hover:scale-[1.05] origin-center">
-        <VisualSwitch type={project.visual} />
-      </div>
+      <VisualSwitch type={project.visual} />
 
       {/* content */}
       <div className="p-6">
